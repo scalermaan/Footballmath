@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PEA Football Scoreboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .scoreboard {
+            background-color: #ffffff;
+            border: 2px solid #0073e6;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+            padding: 20px;
+        }
+        .scoreboard h1 {
+            color: #0073e6;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .teams {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .team {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        .score {
+            font-size: 36px;
+            font-weight: bold;
+            color: #0073e6;
+        }
+        .match-info {
+            font-size: 14px;
+            color: #666;
+            margin-top: 20px;
+        }
+        .btn-container {
+            margin-top: 20px;
+        }
+        .btn {
+            background-color: #0073e6;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 0 5px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #005bb5;
+        }
+        .input-time {
+            width: 80px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="scoreboard">
+        <h1>PEA Football Match</h1>
+        <div class="teams">
+            <div class="team" id="teamA-name">Team A</div>
+            <div class="score" id="teamA-score">0</div>
+            <span>-</span>
+            <div class="score" id="teamB-score">0</div>
+            <div class="team" id="teamB-name">Team B</div>
+        </div>
+        <div class="match-info">
+            <span id="match-time">Match Time: 90:00</span>
+        </div>
+        <div class="btn-container">
+            <button class="btn" onclick="updateScore('teamA', 1)">Team A +1</button>
+            <button class="btn" onclick="updateScore('teamB', 1)">Team B +1</button>
+            <button class="btn" onclick="resetScore()">Reset Score</button>
+            <input type="number" id="new-time" class="input-time" placeholder="New Time (min)" />
+            <button class="btn" onclick="setNewTime()">Set Time</button>
+            <button class="btn" onclick="toggleCountdown()">Pause</button>
+            <button class="btn" onclick="resetTime()">Reset Time</button>
+        </div>
+    </div>
+
+    <script>
+        let countdownTime = 90 * 60; // 90 minutes in seconds
+        let countdownInterval;
+        let isCounting = true;
+        let initialTime = 90 * 60; // 90 minutes in seconds
+
+        function updateScore(team, points) {
+            const scoreElement = document.getElementById(`${team}-score`);
+            let currentScore = parseInt(scoreElement.textContent);
+            scoreElement.textContent = currentScore + points;
+        }
+
+        function resetScore() {
+            document.getElementById('teamA-score').textContent = 0;
+            document.getElementById('teamB-score').textContent = 0;
+        }
+
+        function startCountdown() {
+            countdownInterval = setInterval(() => {
+                const minutes = Math.floor(countdownTime / 60);
+                const seconds = countdownTime % 60;
+                document.getElementById('match-time').textContent = `Match Time: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                if (countdownTime <= 0) {
+                    clearInterval(countdownInterval);
+                } else {
+                    countdownTime--;
+                }
+            }, 1000);
+        }
+
+        function toggleCountdown() {
+            if (isCounting) {
+                clearInterval(countdownInterval);
+                document.querySelector('.btn:nth-child(5)').textContent = 'Resume';
+            } else {
+                startCountdown();
+                document.querySelector('.btn:nth-child(5)').textContent = 'Pause';
+            }
+            isCounting = !isCounting;
+        }
+
+        function setNewTime() {
+            const newTime = parseInt(document.getElementById('new-time').value);
+            if (!isNaN(newTime) && newTime > 0) {
+                countdownTime = newTime * 60;
+                document.getElementById('new-time').value = '';
+                if (isCounting) {
+                    clearInterval(countdownInterval);
+                    startCountdown();
+                }
+            } else {
+                alert('Please enter a valid time.');
+            }
+        }
+
+        function resetTime() {
+            countdownTime = initialTime;
+            document.getElementById('new-time').value = '';
+            if (isCounting) {
+                clearInterval(countdownInterval);
+                startCountdown();
+            }
+        }
+
+        // Detect Enter key to set time
+        document.getElementById('new-time').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                setNewTime();
+            }
+        });
+
+        window.onload = startCountdown;
+    </script>
+</body>
+</html>
